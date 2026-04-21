@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RC Column PMM Designer — NSCP 2015</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161e;
+    --bg3: #1a1f2b;
+    --border: #252b3a;
+    --border2: #2e3650;
+    --accent: #4fc3f7;
+    --accent2: #00e5c3;
+    --accent3: #ff6b6b;
+    --warn: #ffd54f;
+    --text: #e2e8f0;
+    --text2: #8fa0b8;
+    --text3: #4a5a78;
+    --green: #69f0ae;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+    --radius: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-weight: 600; font-size: 13px;
+    color: var(--bg); flex-shrink: 0;
+  }
+  header h1 {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+  }
+  header p {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: var(--mono);
+    margin-top: 1px;
+  }
+  .header-badge {
+    margin-left: auto;
+    background: rgba(79,195,247,0.1);
+    border: 1px solid rgba(79,195,247,0.3);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Layout ── */
+  .app {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    min-height: calc(100vh - 73px);
+  }
+
+  /* ── Sidebar / Inputs ── */
+  .sidebar {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 24px 20px;
+    overflow-y: auto;
+    max-height: calc(100vh - 73px);
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::before {
+    content: '';
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  .input-group {
+    margin-bottom: 14px;
+  }
+  .input-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 5px;
+    font-family: var(--mono);
+  }
+  .input-group label span.unit {
+    color: var(--text3);
+    font-size: 10px;
+  }
+  .input-group input[type="number"],
+  .input-group select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    outline: none;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+  .input-group input[type="number"]:focus,
+  .input-group select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(79,195,247,0.15);
+  }
+  .input-group input[type="number"]::-webkit-inner-spin-button { display: none; }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .section-block {
+    margin-bottom: 24px;
+  }
+
+  /* ── Checkbox bar selector ── */
+  .bar-selector {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .bar-chip {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .bar-chip input { display: none; }
+  .bar-chip.selected {
+    background: rgba(79,195,247,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ── Buttons ── */
+  .btn-calc {
+    width: 100%;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    padding: 13px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+  .btn-calc:hover { opacity: 0.88; }
+  .btn-calc:active { transform: scale(0.98); }
+  .btn-calc:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-export {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 7px 14px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    letter-spacing: 0.04em;
+  }
+  .btn-export:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* ── Main content ── */
+  .main {
+    padding: 24px 28px;
+    overflow-y: auto;
+    max-height: calc(100vh - 73px);
+  }
+
+  /* ── Empty state ── */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    color: var(--text3);
+    font-family: var(--mono);
+    gap: 12px;
+  }
+  .empty-icon {
+    width: 64px; height: 64px;
+    border: 2px solid var(--border2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+
+  /* ── Loading ── */
+  .loader {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    gap: 16px;
+  }
+  .loader.active { display: flex; }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader-text {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text2);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Results ── */
+  .results { display: none; }
+  .results.active { display: block; }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .results-title {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text2);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Best design card ── */
+  .best-card {
+    background: var(--bg2);
+    border: 1px solid var(--accent2);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 220px;
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .best-card::before {
+    content: 'OPTIMAL';
+    position: absolute;
+    top: 12px; right: 12px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: var(--accent2);
+    background: rgba(0,229,195,0.1);
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,229,195,0.3);
+  }
+  .best-card-glow {
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(0,229,195,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .metric-block { }
+  .metric-block h3 {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .metric-val {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .metric-sub {
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 3px;
+  }
+
+  /* Interaction ratio bar */
+  .ir-bar-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ir-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .ir-bar-bg {
+    background: var(--bg3);
+    border-radius: 2px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .ir-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--green);
+    transition: width 0.6s ease;
+  }
+  .ir-bar-fill.warn { background: var(--warn); }
+  .ir-bar-fill.danger { background: var(--accent3); }
+
+  /* ── Alternatives table ── */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  thead tr {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border2);
+  }
+  thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  tbody tr.rank-1 { background: rgba(0,229,195,0.04); }
+  tbody td {
+    padding: 10px 14px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 600;
+    background: var(--bg3);
+    color: var(--text3);
+  }
+  .rank-badge.r1 { background: rgba(0,229,195,0.15); color: var(--accent2); }
+  .rank-badge.r2 { background: rgba(79,195,247,0.1); color: var(--accent); }
+
+  .tag-ok { color: var(--green); }
+  .tag-warn { color: var(--warn); }
+  .tag-fail { color: var(--accent3); }
+
+  /* ── Canvas section ── */
+  .canvas-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .canvas-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .canvas-card h4 {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    text-align: center;
+  }
+  canvas {
+    display: block;
+    border-radius: 4px;
+  }
+
+  /* ── Error alert ── */
+  .alert {
+    background: rgba(255,107,107,0.1);
+    border: 1px solid rgba(255,107,107,0.4);
+    color: var(--accent3);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    margin-top: 12px;
+    display: none;
+  }
+  .alert.active { display: block; }
+
+  /* ── Cost breakdown mini ── */
+  .cost-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 4px 0;
+  }
+  .cost-row .cost-label { color: var(--text2); }
+  .cost-row .cost-val { color: var(--text); }
+  .cost-total {
+    border-top: 1px solid var(--border2);
+    margin-top: 6px;
+    padding-top: 6px;
+  }
+  .cost-total .cost-val { color: var(--accent2); font-weight: 600; }
+
+  /* ── No solutions ── */
+  .no-sol {
+    text-align: center;
+    padding: 40px;
+    color: var(--text2);
+    font-family: var(--mono);
+    font-size: 12px;
+    display: none;
+  }
+  .no-sol.active { display: block; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { max-height: none; border-right: none; border-bottom: 1px solid var(--border); }
+    .main { max-height: none; }
+    .best-card { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    header { padding: 14px 16px; }
+    .sidebar, .main { padding: 16px; }
+    .best-card { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">RC</div>
+  <div>
+    <h1>PMM Column Designer</h1>
+    <p>NSCP 2015 / ACI 318 · Biaxial Interaction · Cost Optimization</p>
+  </div>
+  <div class="header-badge">NSCP 2015</div>
+</header>
+
+<div class="app">
+<!-- ══════════ SIDEBAR ══════════ -->
+<aside class="sidebar">
+
+  <div class="section-block">
+    <div class="section-label">Factored Loads</div>
+    <div class="input-group">
+      <label>Factored Axial Load Pu <span class="unit">kN</span></label>
+      <input type="number" id="Pu" value="2500" step="50" min="0">
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <label>Mux <span class="unit">kN·m</span></label>
+        <input type="number" id="Mux" value="120" step="10" min="0">
+      </div>
+      <div class="input-group">
+        <label>Muy <span class="unit">kN·m</span></label>
+        <input type="number" id="Muy" value="80" step="10" min="0">
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Column Height (optional) <span class="unit">m</span></label>
+      <input type="number" id="height" value="" step="0.5" min="0" placeholder="e.g. 3.5">
+    </div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-label">Material Properties</div>
+    <div class="input-row">
+      <div class="input-group">
+        <label>f'c <span class="unit">MPa</span></label>
+        <input type="number" id="fc" value="28" step="1" min="17">
+      </div>
+      <div class="input-group">
+        <label>fy <span class="unit">MPa</span></label>
+        <input type="number" id="fy" value="415" step="5" min="275">
+      </div>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-label">Geometry</div>
+    <div class="input-row">
+      <div class="input-group">
+        <label>Clear Cover <span class="unit">mm</span></label>
+        <input type="number" id="cover" value="40" step="5" min="25">
+      </div>
+      <div class="input-group">
+        <label>Tie Size <span class="unit">mm</span></label>
+        <select id="tieSize">
+          <option value="10">10mm</option>
+          <option value="12" selected>12mm</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-label">Bar Sizes to Consider</div>
+    <div class="bar-selector" id="barSelector">
+      <label class="bar-chip" data-dia="16"><input type="checkbox" value="16" checked>16mm</label>
+      <label class="bar-chip" data-dia="20"><input type="checkbox" value="20" checked>20mm</label>
+      <label class="bar-chip" data-dia="25"><input type="checkbox" value="25" checked>25mm</label>
+      <label class="bar-chip" data-dia="28"><input type="checkbox" value="28">28mm</label>
+      <label class="bar-chip" data-dia="32"><input type="checkbox" value="32">32mm</label>
+      <label class="bar-chip" data-dia="36"><input type="checkbox" value="36">36mm</label>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <div class="section-label">Unit Costs</div>
+    <div class="input-row">
+      <div class="input-group">
+        <label>Concrete <span class="unit">₱/m³</span></label>
+        <input type="number" id="costConcrete" value="8000" step="100" min="0">
+      </div>
+      <div class="input-group">
+        <label>Rebar <span class="unit">₱/kg</span></label>
+        <input type="number" id="costSteel" value="78" step="1" min="0">
+      </div>
+    </div>
+  </div>
+
+  <div id="alertBox" class="alert"></div>
+
+  <button class="btn-calc" id="calcBtn" onclick="runDesign()">▶ Run Design Optimization</button>
+  <div style="height:10px;"></div>
+  <button class="btn-export" onclick="exportCSV()">↓ Export Results CSV</button>
+</aside>
+
+<!-- ══════════ MAIN ══════════ -->
+<main class="main">
+
+  <!-- Empty state -->
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">⬡</div>
+    <div style="font-size:13px; letter-spacing:0.06em;">Configure inputs and run optimization</div>
+    <div style="font-size:11px; color: var(--text3);">PMM interaction check per NSCP 2015 Section 422</div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <div class="spinner"></div>
+    <div class="loader-text">OPTIMIZING COLUMN DESIGNS…</div>
+  </div>
+
+  <!-- No solutions -->
+  <div class="no-sol" id="noSol">
+    ⚠ No valid designs found with given bar sizes.<br>
+    Try enabling larger bar diameters or increasing column size range.
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+    <div class="results-header">
+      <div class="results-title" id="resultsSummary"></div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span id="solutionCount" style="font-family:var(--mono);font-size:11px;color:var(--text3);"></span>
+      </div>
+    </div>
+
+    <!-- Best card -->
+    <div class="best-card" id="bestCard">
+      <div class="best-card-glow"></div>
+      <div class="metric-block" id="bestDims"></div>
+      <div class="metric-block" id="bestBars"></div>
+      <div class="metric-block" id="bestCost"></div>
+    </div>
+
+    <!-- Canvas row -->
+    <div class="canvas-row" id="canvasRow"></div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Size (mm)</th>
+            <th>Bars</th>
+            <th>ρ (%)</th>
+            <th>ϕPn (kN)</th>
+            <th>ϕMnx (kN·m)</th>
+            <th>ϕMny (kN·m)</th>
+            <th>IR</th>
+            <th>Conc. Cost</th>
+            <th>Steel Cost</th>
+            <th>Total Cost</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="resultsTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  ENGINEERING ENGINE — NSCP 2015 / ACI 318
+// ═══════════════════════════════════════════════════════════
+
+// Bar areas (mm²)
+const BAR_AREA = { 10:78.54, 12:113.1, 16:201.1, 20:314.2, 25:490.9, 28:615.8, 32:804.2, 36:1017.9 };
+
+let lastResults = [];
+
+// ── Bar chip toggle ──
+document.querySelectorAll('.bar-chip').forEach(chip => {
+  const cb = chip.querySelector('input');
+  if (cb.checked) chip.classList.add('selected');
+  chip.addEventListener('click', () => {
+    chip.classList.toggle('selected');
+    cb.checked = chip.classList.contains('selected');
+  });
+});
+
+// ── Generate candidate column sizes (square, 250–800 step 50) ──
+function generateColumnSizes() {
+  const sizes = [];
+  for (let b = 250; b <= 800; b += 50) {
+    sizes.push({ b, h: b }); // square
+    if (b !== b + 50) {
+      // Also add a couple of rectangular combos
+      if (b + 50 <= 800) sizes.push({ b, h: b + 50 });
+    }
+  }
+  return sizes;
+}
+
+// ── Generate rebar options (number of bars 4–20, selected diameters) ──
+function generateRebarOptions(selectedDias) {
+  const options = [];
+  const barCounts = [4, 6, 8, 10, 12, 14, 16, 18, 20];
+  for (const dia of selectedDias) {
+    for (const n of barCounts) {
+      options.push({ dia, n, abTotal: n * BAR_AREA[dia] });
+    }
+  }
+  return options;
+}
+
+// ── β1 per NSCP 2015 / ACI 318-14 Table 22.2.2.4.3 ──
+function getBeta1(fc) {
+  if (fc <= 28) return 0.85;
+  return Math.max(0.65, 0.85 - 0.05 * (fc - 28) / 7);
+}
+
+// ── ϕ factor for tied column (compression-controlled) per NSCP 2015 Table 421.2.2 ──
+// Tied = 0.65 compression-controlled, transitions to 0.90 at tension-controlled
+// For combined axial+bending, we use 0.65 as conservative for comp-ctrl
+function getPhiFactor(et) {
+  // et = net tensile strain at extreme tension steel
+  if (et <= 0.002) return 0.65; // compression-controlled
+  if (et >= 0.005) return 0.90; // tension-controlled
+  return 0.65 + (et - 0.002) * (0.90 - 0.65) / (0.003); // transition
+}
+
+// ══════════════════════════════════════════════════════════
+//  calculateCapacity: Returns {phiPn, phiMnx, phiMny}
+//  Uses simplified rectangular stress block, distributed bars
+// ══════════════════════════════════════════════════════════
+function calculateCapacity(params) {
+  const { b, h, fc, fy, Ast, n, cover, tieDia, dia } = params;
+  const Es = 200000; // MPa
+  const beta1 = getBeta1(fc);
+  const Ag = b * h;
+  const d_eff_x = h - cover - tieDia - dia / 2; // depth to extreme tension bar (x-axis bending)
+  const d_eff_y = b - cover - tieDia - dia / 2;
+
+  // ── Axial capacity (pure compression, balanced steel) ──
+  // NSCP 2015 Eq 422.4.2.2: Pn = 0.80[0.85f'c(Ag - Ast) + fy·Ast]
+  const Pn0 = 0.80 * (0.85 * fc * (Ag - Ast) + fy * Ast);
+
+  // ── Balanced condition for Mnx ──
+  // Balanced neutral axis depth
+  const cb_x = (600 / (600 + fy)) * d_eff_x;
+  const ab_x = beta1 * cb_x;
+  const Cc_x = 0.85 * fc * ab_x * b;
+
+  // Simplified: treat all steel at d' and d for bending
+  const d_prime_x = cover + tieDia + dia / 2;
+  const epsilonS_prime = Math.max(0, 0.003 * (cb_x - d_prime_x) / cb_x);
+  const fsPrime_x = Math.min(fy, epsilonS_prime * Es);
+
+  // Half steel on each face (conservative for biaxial)
+  const Ast_face = Ast / 2;
+  const Cs_x = Ast_face * (fsPrime_x - 0.85 * fc);
+  const Ts_x = Ast_face * fy;
+
+  // Pn at balanced
+  const Pnb_x = Cc_x + Cs_x - Ts_x;
+  // Mn at balanced (moment about plastic centroid = mid depth)
+  const Mnb_x = Cc_x * (h / 2 - ab_x / 2) +
+                 Cs_x * (h / 2 - d_prime_x) +
+                 Ts_x * (d_eff_x - h / 2);
+
+  // ── For practical interaction diagram, use three key points ──
+  // 1. Pure compression → (Pn0, 0)
+  // 2. Balanced point   → (Pnb_x, Mnb_x)
+  // 3. Pure bending     → (0, Mn_pure_x)
+
+  // Pure bending Mnx (approx, iterative a)
+  const Mn_pure_x = computePureMn(b, d_eff_x, d_prime_x, fc, fy, Ast_face, beta1, Es);
+
+  // Similarly for Y-axis (swap b/h and d values)
+  const d_eff_y2 = b - cover - tieDia - dia / 2;
+  const d_prime_y2 = cover + tieDia + dia / 2;
+  const cb_y = (600 / (600 + fy)) * d_eff_y2;
+  const ab_y = beta1 * cb_y;
+  const Cc_y = 0.85 * fc * ab_y * h;
+  const epsilonS_prime_y = Math.max(0, 0.003 * (cb_y - d_prime_y2) / cb_y);
+  const fsPrime_y = Math.min(fy, epsilonS_prime_y * Es);
+  const Cs_y = Ast_face * (fsPrime_y - 0.85 * fc);
+  const Ts_y = Ast_face * fy;
+  const Pnb_y = Cc_y + Cs_y - Ts_y;
+  const Mnb_y = Cc_y * (b / 2 - ab_y / 2) +
+                 Cs_y * (b / 2 - d_prime_y2) +
+                 Ts_y * (d_eff_y2 - b / 2);
+  const Mn_pure_y = computePureMn(h, d_eff_y2, d_prime_y2, fc, fy, Ast_face, beta1, Es);
+
+  // ── Get capacity at actual Pu using linear interpolation on P-M envelope ──
+  // We use the Reciprocal Load Method (Bresler) for biaxial bending:
+  //   1/Pni = 1/Pnx + 1/Pny - 1/Pn0
+
+  // First, find Mnx at Pu by interpolating on the P-M envelope (X-axis)
+  const { Mn_at_Pu: Mnx_at_Pu, phi_at_Pu: phi_x } = getMnAtPu(
+    params.Pu_kN * 1000, Pn0, Pnb_x, Mnb_x, Mn_pure_x, cb_x, d_eff_x, h
+  );
+  const { Mn_at_Pu: Mny_at_Pu, phi_at_Pu: phi_y } = getMnAtPu(
+    params.Pu_kN * 1000, Pn0, Pnb_y, Mnb_y, Mn_pure_y, cb_y, d_eff_y2, b
+  );
+
+  // Use ϕ = 0.65 for tied column under combined loading (conservative)
+  const phi = 0.65;
+
+  return {
+    phiPn: phi * Pn0 / 1000,        // kN
+    phiMnx: phi * Mnx_at_Pu / 1e6,  // kN·m
+    phiMny: phi * Mny_at_Pu / 1e6,  // kN·m
+    Pn0_kN: Pn0 / 1000,
+    rho: (Ast / Ag) * 100,
+    Ag
+  };
+}
+
+// Compute pure bending Mn (iterative a)
+function computePureMn(b, d, dPrime, fc, fy, Ast_face, beta1, Es) {
+  let a = (Ast_face * fy) / (0.85 * fc * b);
+  for (let i = 0; i < 10; i++) {
+    const c = a / beta1;
+    const epsCompr = 0.003 * (c - dPrime) / c;
+    const fs_compr = Math.min(fy, Math.max(0, epsCompr * Es));
+    a = (Ast_face * fy - Ast_face * (fs_compr - 0.85 * fc)) / (0.85 * fc * b);
+    if (a < 0) a = 0.001;
+  }
+  const Mn = Ast_face * fy * (d - a / 2);
+  return Math.max(0, Mn);
+}
+
+// Interpolate Mn at a given Pu on the P-M envelope
+function getMnAtPu(Pu_N, Pn0, Pnb, Mnb, Mn_pure, cb, d, dim) {
+  // P-M envelope: linear segments (Pn0,0) → (Pnb, Mnb) → (0, Mn_pure)
+  let Mn_at_Pu, phi_at_Pu;
+  if (Pu_N >= Pnb) {
+    // Above balanced: linear from (Pn0,0) to (Pnb, Mnb)
+    const t = (Pu_N - Pnb) / (Pn0 - Pnb + 1e-6);
+    Mn_at_Pu = Mnb * (1 - t);
+    phi_at_Pu = 0.65;
+  } else {
+    // Below balanced: linear from (Pnb, Mnb) to (0, Mn_pure)
+    const t = Pu_N / (Pnb + 1e-6);
+    Mn_at_Pu = Mn_pure + t * (Mnb - Mn_pure);
+    phi_at_Pu = 0.65 + (1 - t) * 0.25; // transition
+  }
+  return { Mn_at_Pu: Math.max(0, Mn_at_Pu), phi_at_Pu };
+}
+
+// ── PMM Interaction Ratio (Bresler reciprocal load + moment) ──
+function checkPMM(Pu, Mux, Muy, phiPn, phiMnx, phiMny) {
+  // AISC/ACI bilinear interaction:
+  // IR = Pu/phiPn + Mux/phiMnx + Muy/phiMny
+  if (phiPn <= 0 || phiMnx <= 0 || phiMny <= 0) return 999;
+  const axialRatio = Pu / phiPn;
+  let IR;
+  if (axialRatio >= 0.2) {
+    IR = axialRatio + (Mux / phiMnx) + (Muy / phiMny);
+  } else {
+    IR = axialRatio / 2 + (Mux / phiMnx) + (Muy / phiMny);
+  }
+  return IR;
+}
+
+// ── Cost ──
+function computeCost(b_mm, h_mm, height_m, Ast_mm2, costConcretePerM3, costSteelPerKg) {
+  const L = height_m > 0 ? height_m : 3.0; // default 3m if not given
+  const vol_m3 = (b_mm / 1000) * (h_mm / 1000) * L;
+  const steelVol_m3 = Ast_mm2 * L / 1e6;
+  const concreteVol = vol_m3 - steelVol_m3;
+  const steelWeight_kg = Ast_mm2 * L * 7850 / 1e6; // ρ_steel = 7850 kg/m³
+  const concCost = concreteVol * costConcretePerM3;
+  const steelCost = steelWeight_kg * costSteelPerKg;
+  return { concCost, steelCost, total: concCost + steelCost };
+}
+
+// ══════════════════════════════════════════════════════════
+//  MAIN OPTIMIZATION LOOP
+// ══════════════════════════════════════════════════════════
+function optimizeDesign(inputs) {
+  const { Pu, Mux, Muy, fc, fy, cover, tieDia, selectedDias,
+          costConcrete, costSteel, height } = inputs;
+
+  const Ag_min_ratio = 0.01; // NSCP min 1%
+  const Ag_max_ratio = 0.08; // NSCP max 8%
+
+  const colSizes = generateColumnSizes();
+  const rebarOptions = generateRebarOptions(selectedDias);
+
+  const valid = [];
+
+  for (const sz of colSizes) {
+    const Ag = sz.b * sz.h;
+
+    for (const rb of rebarOptions) {
+      const { dia, n, abTotal: Ast } = rb;
+      const rho = Ast / Ag;
+
+      // Reinforcement ratio limits
+      if (rho < Ag_min_ratio || rho > Ag_max_ratio) continue;
+
+      // Minimum bar spacing check (rough)
+      const perim = 2 * (sz.b + sz.h);
+      const minSpacing = Math.max(40, dia); // 40mm or 1 bar dia
+      const barsPerSide = Math.ceil(n / 4);
+      const spacing = (sz.b - 2 * (cover + tieDia) - dia) / Math.max(1, barsPerSide - 1);
+      if (spacing < minSpacing && n > 4) continue;
+
+      // Capacity
+      const cap = calculateCapacity({
+        b: sz.b, h: sz.h, fc, fy, Ast, n, cover, tieDia, dia,
+        Pu_kN: Pu
+      });
+
+      // PMM check
+      const IR = checkPMM(Pu, Mux, Muy, cap.phiPn, cap.phiMnx, cap.phiMny);
+
+      if (IR <= 1.0) {
+        // Cost
+        const cost = computeCost(sz.b, sz.h, height, Ast, costConcrete, costSteel);
+        valid.push({
+          b: sz.b, h: sz.h, dia, n, Ast,
+          rho: cap.rho,
+          phiPn: cap.phiPn,
+          phiMnx: cap.phiMnx,
+          phiMny: cap.phiMny,
+          IR,
+          concCost: cost.concCost,
+          steelCost: cost.steelCost,
+          total: cost.total
+        });
+      }
+    }
+  }
+
+  // Sort by total cost
+  valid.sort((a, b) => a.total - b.total);
+
+  // Deduplicate: keep unique (b,h,dia,n) top 5
+  const seen = new Set();
+  const top = [];
+  for (const d of valid) {
+    const key = `${d.b}x${d.h}_${d.n}x${d.dia}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      top.push(d);
+      if (top.length >= 8) break;
+    }
+  }
+
+  return top;
+}
+
+// ══════════════════════════════════════════════════════════
+//  UI
+// ══════════════════════════════════════════════════════════
+function getInputs() {
+  const Pu = parseFloat(document.getElementById('Pu').value);
+  const Mux = parseFloat(document.getElementById('Mux').value);
+  const Muy = parseFloat(document.getElementById('Muy').value);
+  const fc = parseFloat(document.getElementById('fc').value);
+  const fy = parseFloat(document.getElementById('fy').value);
+  const cover = parseFloat(document.getElementById('cover').value);
+  const tieDia = parseFloat(document.getElementById('tieSize').value);
+  const costConcrete = parseFloat(document.getElementById('costConcrete').value);
+  const costSteel = parseFloat(document.getElementById('costSteel').value);
+  const heightRaw = parseFloat(document.getElementById('height').value);
+  const height = isNaN(heightRaw) ? 3.0 : heightRaw;
+
+  const selectedDias = [];
+  document.querySelectorAll('.bar-chip input:checked').forEach(cb => {
+    selectedDias.push(parseInt(cb.value));
+  });
+
+  return { Pu, Mux, Muy, fc, fy, cover, tieDia, costConcrete, costSteel, height, selectedDias };
+}
+
+function validate(inp) {
+  if (isNaN(inp.Pu) || inp.Pu <= 0) return 'Pu must be positive.';
+  if (isNaN(inp.Mux) || inp.Mux < 0) return 'Mux must be ≥ 0.';
+  if (isNaN(inp.Muy) || inp.Muy < 0) return 'Muy must be ≥ 0.';
+  if (isNaN(inp.fc) || inp.fc < 17) return "f'c must be ≥ 17 MPa.";
+  if (isNaN(inp.fy) || inp.fy < 275) return 'fy must be ≥ 275 MPa.';
+  if (inp.selectedDias.length === 0) return 'Select at least one bar diameter.';
+  return null;
+}
+
+function showAlert(msg) {
+  const el = document.getElementById('alertBox');
+  el.textContent = msg;
+  el.classList.add('active');
+}
+function hideAlert() {
+  document.getElementById('alertBox').classList.remove('active');
+}
+
+function runDesign() {
+  hideAlert();
+  const inp = getInputs();
+  const err = validate(inp);
+  if (err) { showAlert(err); return; }
+
+  // Show loader
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('loader').classList.add('active');
+  document.getElementById('results').classList.remove('active');
+  document.getElementById('noSol').classList.remove('active');
+  document.getElementById('calcBtn').disabled = true;
+
+  // Run async to allow render
+  setTimeout(() => {
+    const results = optimizeDesign(inp);
+    lastResults = results;
+
+    document.getElementById('loader').classList.remove('active');
+    document.getElementById('calcBtn').disabled = false;
+
+    if (results.length === 0) {
+      document.getElementById('noSol').classList.add('active');
+      return;
+    }
+
+    renderResults(results, inp);
+  }, 30);
+}
+
+function fmt(n, dec = 1) { return n.toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function fmtCost(n) { return '₱' + fmt(n, 2); }
+
+function renderResults(results, inp) {
+  const best = results[0];
+
+  // Summary
+  document.getElementById('resultsSummary').textContent =
+    `Design complete — Pu=${fmt(inp.Pu,0)} kN, Mux=${fmt(inp.Mux,0)} kN·m, Muy=${fmt(inp.Muy,0)} kN·m`;
+  document.getElementById('solutionCount').textContent =
+    `${results.length} valid design(s) found`;
+
+  // ── Best card ──
+  document.getElementById('bestDims').innerHTML = `
+    <h3>Column Size</h3>
+    <div class="metric-val">${best.b} × ${best.h}</div>
+    <div class="metric-sub">mm · Ag = ${fmt(best.b*best.h/1e4,1)} cm²</div>
+    <div style="margin-top:10px;">
+      <div class="cost-row"><span class="cost-label">ρ (steel ratio)</span><span class="cost-val">${fmt(best.rho,2)}%</span></div>
+      <div class="cost-row"><span class="cost-label">ϕPn</span><span class="cost-val">${fmt(best.phiPn,0)} kN</span></div>
+      <div class="cost-row"><span class="cost-label">ϕMnx</span><span class="cost-val">${fmt(best.phiMnx,1)} kN·m</span></div>
+      <div class="cost-row"><span class="cost-label">ϕMny</span><span class="cost-val">${fmt(best.phiMny,1)} kN·m</span></div>
+    </div>`;
+
+  const irClass = best.IR > 0.9 ? 'warn' : '';
+  document.getElementById('bestBars').innerHTML = `
+    <h3>Reinforcement</h3>
+    <div class="metric-val">${best.n} — ${best.dia}mmø</div>
+    <div class="metric-sub">Ast = ${fmt(best.Ast,0)} mm² = ${fmt(best.Ast/100,2)} cm²</div>
+    <div style="margin-top:14px;">
+      <div class="ir-bar-wrap">
+        <div class="ir-bar-label">
+          <span>Interaction Ratio</span>
+          <span style="color:${best.IR>0.9?'var(--warn)':'var(--green)'}">${fmt(best.IR,3)}</span>
+        </div>
+        <div class="ir-bar-bg">
+          <div class="ir-bar-fill ${irClass}" style="width:${Math.min(100,best.IR*100)}%"></div>
+        </div>
+      </div>
+      ${best.IR > 0.9 ? '<div style="color:var(--warn);font-size:11px;margin-top:6px;font-family:var(--mono);">⚠ Near capacity (&gt;90%)</div>' : ''}
+    </div>`;
+
+  document.getElementById('bestCost').innerHTML = `
+    <h3>Cost Estimate</h3>
+    <div class="cost-row"><span class="cost-label">Concrete</span><span class="cost-val">${fmtCost(best.concCost)}</span></div>
+    <div class="cost-row"><span class="cost-label">Rebar</span><span class="cost-val">${fmtCost(best.steelCost)}</span></div>
+    <div class="cost-row cost-total"><span class="cost-label" style="color:var(--text)">TOTAL</span><span class="cost-val">${fmtCost(best.total)}</span></div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text3);font-family:var(--mono);">Per ${inp.height||3.0}m height</div>`;
+
+  // ── Canvas cross-sections (top 3) ──
+  const canvasRow = document.getElementById('canvasRow');
+  canvasRow.innerHTML = '';
+  results.slice(0, 3).forEach((d, i) => {
+    const div = document.createElement('div');
+    div.className = 'canvas-card';
+    div.innerHTML = `<h4>${i===0?'★ Optimal: ':'Alt '+(i+1)+': '}${d.b}×${d.h}mm · ${d.n}-${d.dia}mmø</h4>`;
+    const cv = document.createElement('canvas');
+    cv.width = 180; cv.height = 180;
+    div.appendChild(cv);
+    canvasRow.appendChild(div);
+    drawSection(cv, d, inp);
+  });
+
+  // ── Table ──
+  const tbody = document.getElementById('resultsTbody');
+  tbody.innerHTML = '';
+  results.forEach((d, i) => {
+    const rankCls = i === 0 ? 'r1' : i === 1 ? 'r2' : '';
+    const irTag = d.IR > 0.9 ? 'tag-warn' : 'tag-ok';
+    const tr = document.createElement('tr');
+    if (i === 0) tr.className = 'rank-1';
+    tr.innerHTML = `
+      <td><span class="rank-badge ${rankCls}">${i+1}</span></td>
+      <td>${d.b}×${d.h}</td>
+      <td>${d.n} — ${d.dia}mmø</td>
+      <td>${fmt(d.rho,2)}</td>
+      <td>${fmt(d.phiPn,0)}</td>
+      <td>${fmt(d.phiMnx,1)}</td>
+      <td>${fmt(d.phiMny,1)}</td>
+      <td class="${irTag}">${fmt(d.IR,3)}</td>
+      <td>${fmtCost(d.concCost)}</td>
+      <td>${fmtCost(d.steelCost)}</td>
+      <td>${fmtCost(d.total)}</td>
+      <td class="${d.IR>0.9?'tag-warn':'tag-ok'}">${d.IR>0.9?'⚠ Near':'✓ OK'}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('results').classList.add('active');
+}
+
+// ── Canvas drawing ──
+function drawSection(canvas, d, inp) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const pad = 12;
+  const scale = Math.min((W - 2*pad) / d.b, (H - 2*pad) / d.h);
+  const cw = d.b * scale, ch = d.h * scale;
+  const ox = (W - cw) / 2, oy = (H - ch) / 2;
+
+  // Concrete body
+  ctx.fillStyle = '#2a3040';
+  ctx.strokeStyle = '#3a4560';
+  ctx.lineWidth = 1.5;
+  ctx.fillRect(ox, oy, cw, ch);
+  ctx.strokeRect(ox, oy, cw, ch);
+
+  // Cover hatch
+  const cover_s = inp.cover * scale;
+  const tieDia_s = inp.tieDia * scale;
+  const offset = cover_s + tieDia_s;
+  ctx.strokeStyle = '#4a5570';
+  ctx.lineWidth = 0.5;
+  ctx.setLineDash([3, 3]);
+  ctx.strokeRect(ox + offset, oy + offset, cw - 2*offset, ch - 2*offset);
+  ctx.setLineDash([]);
+
+  // Bars (simplified rectangular layout)
+  const barR = Math.min((d.dia * scale) / 2, 8);
+  const barPositions = getBarPositions(d.n, d.b, d.h, inp.cover, inp.tieDia, d.dia, scale, ox, oy);
+
+  barPositions.forEach(([bx, by]) => {
+    // Bar fill
+    ctx.beginPath();
+    ctx.arc(bx, by, barR, 0, Math.PI * 2);
+    ctx.fillStyle = '#4fc3f7';
+    ctx.fill();
+    ctx.strokeStyle = '#1a3a50';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+  });
+
+  // Dimension label
+  ctx.fillStyle = '#8fa0b8';
+  ctx.font = '9px IBM Plex Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${d.b}mm`, ox + cw/2, oy + ch + 11);
+  ctx.save();
+  ctx.translate(ox - 8, oy + ch/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText(`${d.h}mm`, 0, 0);
+  ctx.restore();
+}
+
+function getBarPositions(n, b, h, cover, tieDia, dia, scale, ox, oy) {
+  const margin = (cover + tieDia + dia / 2) * scale;
+  const barsPerSide = Math.floor(n / 4);
+  const extra = n % 4;
+  const positions = [];
+
+  // Corners always
+  const corners = [
+    [ox + margin, oy + margin],
+    [ox + b*scale - margin, oy + margin],
+    [ox + b*scale - margin, oy + h*scale - margin],
+    [ox + margin, oy + h*scale - margin]
+  ];
+  positions.push(...corners);
+
+  // Distribute remaining along sides
+  let remaining = n - 4;
+  const sideCount = [0, 0, 0, 0]; // top, right, bottom, left
+  let si = 0;
+  while (remaining > 0) { sideCount[si++ % 4]++; remaining--; }
+
+  // Top
+  for (let i = 1; i <= sideCount[0]; i++) {
+    const t = i / (sideCount[0] + 1);
+    positions.push([ox + margin + t * (b*scale - 2*margin), oy + margin]);
+  }
+  // Right
+  for (let i = 1; i <= sideCount[1]; i++) {
+    const t = i / (sideCount[1] + 1);
+    positions.push([ox + b*scale - margin, oy + margin + t * (h*scale - 2*margin)]);
+  }
+  // Bottom
+  for (let i = 1; i <= sideCount[2]; i++) {
+    const t = i / (sideCount[2] + 1);
+    positions.push([ox + b*scale - margin - t * (b*scale - 2*margin), oy + h*scale - margin]);
+  }
+  // Left
+  for (let i = 1; i <= sideCount[3]; i++) {
+    const t = i / (sideCount[3] + 1);
+    positions.push([ox + margin, oy + h*scale - margin - t * (h*scale - 2*margin)]);
+  }
+
+  return positions;
+}
+
+// ── CSV Export ──
+function exportCSV() {
+  if (!lastResults.length) { showAlert('Run optimization first.'); return; }
+  const headers = ['Rank','Size(mm)','Bars','Dia(mm)','Ast(mm2)','rho(%)','phiPn(kN)','phiMnx(kNm)','phiMny(kNm)','IR','ConcreteCost','SteelCost','TotalCost'];
+  const rows = lastResults.map((d, i) => [
+    i+1, `${d.b}x${d.h}`, d.n, d.dia, fmt(d.Ast,0), fmt(d.rho,3),
+    fmt(d.phiPn,1), fmt(d.phiMnx,1), fmt(d.phiMny,1), fmt(d.IR,4),
+    fmt(d.concCost,2), fmt(d.steelCost,2), fmt(d.total,2)
+  ]);
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pmm_column_results.csv';
+  a.click();
+}
+
+// Init bar chips
+document.querySelectorAll('.bar-chip').forEach(chip => {
+  const cb = chip.querySelector('input');
+  if (cb.checked) chip.classList.add('selected');
+});
+</script>
+</body>
+</html>
